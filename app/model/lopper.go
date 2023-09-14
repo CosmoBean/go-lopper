@@ -1,5 +1,7 @@
 package model
 
+import "github.com/oklog/ulid/v2"
+
 func GetAllUrls() ([]Url, error) {
 	var urls []Url
 
@@ -12,7 +14,7 @@ func GetAllUrls() ([]Url, error) {
 	return urls, nil
 }
 
-func GetUrl(id uint64) (Url, error) {
+func GetUrl(id ulid.ULID) (Url, error) {
 	var url Url
 
 	tx := db.Where("id = ?", id).First(&url)
@@ -34,13 +36,16 @@ func UpdateUrl(url Url) error {
 	return tx.Error
 }
 
-func DeleteUrl(id uint64) error {
-	tx := db.Unscoped().Delete(&Url{}, id)
+func DeleteUrl(id ulid.ULID) error {
+	tx := db.Unscoped().Where("id = ?", id).Delete(&Url{})
 	return tx.Error
 }
 
-func FindByShortenedUrl(shortenedUrl string) (Url, error) {
+func FindByLopper(Lopper string) (Url, bool, error) {
 	var url Url
-	tx := db.Where("shortened_url = ?", url).First(&url)
-	return url, tx.Error
+	tx := db.Where("lopper = ?", url).First(&url)
+	if tx.Error != nil {
+		return url, false, tx.Error
+	}
+	return url, true, tx.Error
 }

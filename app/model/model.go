@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/oklog/ulid/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -11,11 +12,11 @@ import (
 var db *gorm.DB
 
 type Url struct {
-	ID           uint64 `json:"id" gorm:"primary_key"`
-	Redirect     string `json:"redirect"`
-	ShortenedUrl string `json:"shorten_url" gorm:"unique;not null"`
-	Clicked      uint64 `json:"clicked"`
-	Random       bool   `json:"random"`
+	ID       ulid.ULID `json:"id" gorm:"primary_key"`
+	Redirect string    `json:"redirect"`
+	Lopper   string    `json:"lopper" gorm:"unique;not null"`
+	Clicked  uint64    `json:"clicked"`
+	Random   bool      `json:"random"`
 }
 
 func Setup() {
@@ -44,7 +45,6 @@ func Setup() {
 		panic("DATABASE_PORT not found in env")
 	}
 
-	//dsn := "host=localhost user=go-lopper password=test-lopper dbname=go-lopper port=5432 sslmode=disable"
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPassword, dbName, dbPort)
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})

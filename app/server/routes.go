@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"go-lopper/model"
 	"go-lopper/utils"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/oklog/ulid/v2"
 )
 
 func getPing(ctx *fiber.Ctx) error {
@@ -14,8 +14,8 @@ func getPing(ctx *fiber.Ctx) error {
 }
 
 func redirect(ctx *fiber.Ctx) error {
-	shoretendUrl := ctx.Params("redirect")
-	redirectUrl, err := model.FindByShortenedUrl(shoretendUrl)
+	lopper := ctx.Params("redirect")
+	redirectUrl, _, err := model.FindByLopper(lopper)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Error while finding by URL " + err.Error()})
@@ -42,7 +42,7 @@ func getAllRedirects(ctx *fiber.Ctx) error {
 }
 
 func getRedirectUrl(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := ulid.Parse(ctx.Params("id"))
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
@@ -67,8 +67,23 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
 	}
 
+	//lopper validations
+	lenLopper := len(url.Lopper)
+	if lenLopper > 0 {
+		url.Random = false
+		if len(url.Lopper) < 4 {
+			return ctx.Status(fiber.StatusBadRequest).JSON(
+				fiber.Map{"message": "Lopper should be at least 4 characters long"})
+		}
+		existingUrl, ok, err := model.FindByLopper(url.Lopper)
+		if err == nil && ok {
+			return ctx.Status(fiber.StatusConflict).JSON(existingUrl)
+		}
+	}
+
+	url.ID = ulid.Make()
 	if url.Random {
-		url.ShortenedUrl = utils.RandomUrl(8)
+		url.Lopper = utils.RandomUrl(8)
 	}
 
 	if err := model.CreateUrl(url); err != nil {
@@ -97,7 +112,7 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 }
 
 func deleteRedirectUrl(ctx *fiber.Ctx) error {
-	id, err := strconv.ParseUint(ctx.Params("id"), 10, 64)
+	id, err := ulid.Parse(ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
