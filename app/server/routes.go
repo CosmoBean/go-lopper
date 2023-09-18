@@ -15,7 +15,7 @@ func getPing(ctx *fiber.Ctx) error {
 
 func redirect(ctx *fiber.Ctx) error {
 	lopper := ctx.Params("redirect")
-	redirectUrl, _, err := model.FindByLopper(lopper)
+	redirectUrl, _, err := model.FindUrlByLopper(lopper)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Error while finding by URL " + err.Error()})
@@ -75,7 +75,7 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusBadRequest).JSON(
 				fiber.Map{"message": "Lopper should be at least 4 characters long"})
 		}
-		existingUrl, ok, err := model.FindByLopper(url.Lopper)
+		existingUrl, ok, err := model.FindUrlByLopper(url.Lopper)
 		if err == nil && ok {
 			return ctx.Status(fiber.StatusConflict).JSON(existingUrl)
 		}
@@ -124,5 +124,21 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Succesfully deleted"})
+
+}
+
+func deleteRedirectUrlByLopper(ctx *fiber.Ctx) error {
+	lopper := ctx.Query("lopper")
+	if len(lopper) < 4 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{"message": "Lopper should be at least 4 characters long"})
+	}
+
+	if err := model.DeleteUrlByLopper(lopper); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(
+			fiber.Map{"message": "Something went wrong while deleting shortened url " + err.Error()})
+	} else {
+		return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Succesfully deleted"})
+	}
 
 }

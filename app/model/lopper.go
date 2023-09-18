@@ -36,12 +36,17 @@ func UpdateUrl(url Url) error {
 	return tx.Error
 }
 
+func DeleteUrlByLopper(lopper string) error {
+	tx := db.Unscoped().Where("lopper = ?", lopper).Delete(&Url{})
+	return tx.Error
+}
+
 func DeleteUrl(id ulid.ULID) error {
 	tx := db.Unscoped().Where("id = ?", id).Delete(&Url{})
 	return tx.Error
 }
 
-func FindByLopper(Lopper string) (Url, bool, error) {
+func FindUrlByLopper(Lopper string) (Url, bool, error) {
 	var url Url
 	tx := db.Where("lopper = ?", url).First(&url)
 	if tx.Error != nil {
