@@ -1,0 +1,232 @@
+definitions:
+  model.Url:
+    properties:
+      clicked:
+        type: integer
+      id:
+        type: string
+      lopper:
+        type: string
+      random:
+        type: boolean
+      redirect:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /ping:
+    get:
+      consumes:
+      - application/json
+      description: Returns a pong response if API is healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message:pong
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check API health
+      tags:
+      - health
+  /redirect:
+    delete:
+      description: Delete a specific redirect URL by its lopper value
+      parameters:
+      - description: Lopper Value
+        in: query
+        name: lopper
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully Deleted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a redirect URL by lopper
+      tags:
+      - redirect
+    post:
+      consumes:
+      - application/json
+      description: Create a new redirect URL with optional custom lopper
+      parameters:
+      - description: URL Model
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/model.Url'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Url'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new redirect URL
+      tags:
+      - redirect
+    put:
+      consumes:
+      - application/json
+      description: Update an existing redirect URL by its model
+      parameters:
+      - description: URL Model
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/model.Url'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Url'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a redirect URL
+      tags:
+      - redirect
+  /redirect/{id}:
+    delete:
+      description: Delete a specific redirect URL by its ID
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully Deleted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a redirect URL by ID
+      tags:
+      - redirect
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific redirect URL by its ID
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Url'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get specific redirect URL
+      tags:
+      - redirect
+  /redirect/{redirect}:
+    get:
+      description: Redirects the user to the original URL based on the lopper value
+      parameters:
+      - description: Lopper Value
+        in: path
+        name: redirect
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "307":
+          description: Redirected
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Redirect to original URL
+      tags:
+      - redirect
+  /redirects:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all redirect URLs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Url'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve all redirects
+      tags:
+      - redirect
+swagger: "2.0"

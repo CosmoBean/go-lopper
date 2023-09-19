@@ -12,7 +12,7 @@ import (
 var db *gorm.DB
 
 type Url struct {
-	ID       ulid.ULID `json:"id" gorm:"primary_key"`
+	ID       ulid.ULID `json:"id" gorm:"primary_key" swaggertype:"string"`
 	Redirect string    `json:"redirect"`
 	Lopper   string    `json:"lopper" gorm:"unique;not null"`
 	Clicked  uint64    `json:"clicked"`
