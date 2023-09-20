@@ -1,8 +1,6 @@
 definitions:
   model.Url:
     properties:
-      clicked:
-        type: integer
       id:
         type: string
       lopper:
@@ -15,7 +13,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /ping:
+  /health:
     get:
       consumes:
       - application/json
@@ -24,14 +22,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: message:pong
+          description: message:alive
           schema:
             additionalProperties: true
             type: object
       summary: Check API health
       tags:
       - health
-  /redirect:
+  /lopper:
     delete:
       description: Delete a specific redirect URL by its lopper value
       parameters:
@@ -59,6 +57,27 @@ paths:
             additionalProperties: true
             type: object
       summary: Delete a redirect URL by lopper
+      tags:
+      - redirect
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all redirect URLs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Url'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve all redirects
       tags:
       - redirect
     post:
@@ -123,7 +142,7 @@ paths:
       summary: Update a redirect URL
       tags:
       - redirect
-  /redirect/{id}:
+  /lopper/{id}:
     delete:
       description: Delete a specific redirect URL by its ID
       parameters:
@@ -183,7 +202,7 @@ paths:
       summary: Get specific redirect URL
       tags:
       - redirect
-  /redirect/{redirect}:
+  /r/{redirect}:
     get:
       description: Redirects the user to the original URL based on the lopper value
       parameters:
@@ -205,28 +224,6 @@ paths:
             additionalProperties: true
             type: object
       summary: Redirect to original URL
-      tags:
-      - redirect
-  /redirects:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of all redirect URLs
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Url'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Retrieve all redirects
       tags:
       - redirect
 swagger: "2.0"

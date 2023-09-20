@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-lopper/model"
+	"go-lopper/db"
 	"go-lopper/server"
 
 	"github.com/joho/godotenv"
@@ -16,7 +16,7 @@ func main() {
 	}
 
 	//init db migrations
-	model.Setup()
+	db.Init()
 
 	//init server
 	server.SetupAndServe()

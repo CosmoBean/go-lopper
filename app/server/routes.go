@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"go-lopper/db"
 	"go-lopper/model"
 	"go-lopper/utils"
 
@@ -15,10 +16,10 @@ import (
 // @Tags health
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} map[string]interface{} "message:pong"
-// @Router /ping [get]
+// @Success 200 {object} map[string]interface{} "message:alive"
+// @Router /health [get]
 func getPing(ctx *fiber.Ctx) error {
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "pong"})
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "alive"})
 }
 
 // Redirect godoc
@@ -29,17 +30,17 @@ func getPing(ctx *fiber.Ctx) error {
 // @Produce  json
 // @Success 307 {string} string "Redirected"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect/{redirect} [get]
+// @Router /r/{redirect} [get]
 func redirect(ctx *fiber.Ctx) error {
 	lopper := ctx.Params("redirect")
-	redirectUrl, _, err := model.FindUrlByLopper(lopper)
+	redirectUrl, _, err := db.FindUrlByLopper(lopper)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Error while finding by URL " + err.Error()})
 	}
 
 	redirectUrl.Clicked += 1
-	if err := model.UpdateUrl(redirectUrl); err != nil {
+	if err := db.UpdateUrl(redirectUrl); err != nil {
 		fmt.Println("failed to save clicked to db ", err)
 	}
 
@@ -55,9 +56,9 @@ func redirect(ctx *fiber.Ctx) error {
 // @Produce  json
 // @Success 200 {array} model.Url
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirects [get]
+// @Router /lopper [get]
 func getAllRedirects(ctx *fiber.Ctx) error {
-	urls, err := model.GetAllUrls()
+	urls, err := db.GetAllUrls()
 
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
@@ -77,7 +78,7 @@ func getAllRedirects(ctx *fiber.Ctx) error {
 // @Success 200 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect/{id} [get]
+// @Router /lopper/{id} [get]
 func getRedirectUrl(ctx *fiber.Ctx) error {
 	id, err := ulid.Parse(ctx.Params("id"))
 
@@ -87,7 +88,7 @@ func getRedirectUrl(ctx *fiber.Ctx) error {
 
 	}
 
-	redirectUrl, err := model.GetUrl(id)
+	redirectUrl, err := db.GetUrl(id)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
@@ -107,7 +108,7 @@ func getRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 201 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect [post]
+// @Router /lopper [post]
 func createRedirectUrl(ctx *fiber.Ctx) error {
 	var url model.Url
 	if err := ctx.BodyParser(&url); err != nil {
@@ -123,7 +124,7 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusBadRequest).JSON(
 				fiber.Map{"message": "Lopper should be at least 4 characters long"})
 		}
-		existingUrl, ok, err := model.FindUrlByLopper(url.Lopper)
+		existingUrl, ok, err := db.FindUrlByLopper(url.Lopper)
 		if err == nil && ok {
 			return ctx.Status(fiber.StatusConflict).JSON(existingUrl)
 		}
@@ -134,7 +135,7 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 		url.Lopper = utils.RandomUrl(8)
 	}
 
-	if err := model.CreateUrl(url); err != nil {
+	if err := db.CreateUrl(url); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while creating shortened url " + err.Error()})
 
@@ -153,7 +154,7 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 200 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect [put]
+// @Router /lopper [put]
 func updateRedirectUrl(ctx *fiber.Ctx) error {
 	var url model.Url
 	if err := ctx.BodyParser(&url); err != nil {
@@ -161,7 +162,7 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
 	}
 
-	if err := model.UpdateUrl(url); err != nil {
+	if err := db.UpdateUrl(url); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while updating shortened url " + err.Error()})
 	}
@@ -179,7 +180,7 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 204 {object} map[string]interface{} "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect/{id} [delete]
+// @Router /lopper/{id} [delete]
 func deleteRedirectUrl(ctx *fiber.Ctx) error {
 	id, err := ulid.Parse(ctx.Params("id"))
 	if err != nil {
@@ -187,7 +188,7 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
 	}
 
-	if err := model.DeleteUrl(id); err != nil {
+	if err := db.DeleteUrl(id); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while deleting shortened url " + err.Error()})
 	}
@@ -205,7 +206,7 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 204 {object} map[string]interface{} "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /redirect [delete]
+// @Router /lopper [delete]
 func deleteRedirectUrlByLopper(ctx *fiber.Ctx) error {
 	lopper := ctx.Query("lopper")
 	if len(lopper) < 4 {
@@ -213,7 +214,7 @@ func deleteRedirectUrlByLopper(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Lopper should be at least 4 characters long"})
 	}
 
-	if err := model.DeleteUrlByLopper(lopper); err != nil {
+	if err := db.DeleteUrlByLopper(lopper); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while deleting shortened url " + err.Error()})
 	} else {

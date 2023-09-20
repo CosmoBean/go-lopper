@@ -3,6 +3,9 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
+
+	_ "go-lopper/docs"
 )
 
 func SetupAndServe() {
@@ -15,8 +18,11 @@ func SetupAndServe() {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
+	//docs
+	router.Get("/docs/*", swagger.HandlerDefault) // default
+
 	//routes
-	router.Get("/", getPing)
+	router.Get("/health", getPing)
 	router.Get("/lopper", getAllRedirects)
 	router.Get("/lopper/:id", getRedirectUrl)
 	router.Post("/lopper", createRedirectUrl)

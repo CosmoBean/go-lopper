@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/ping": {
+        "/health": {
             "get": {
                 "description": "Returns a pong response if API is healthy",
                 "consumes": [
@@ -30,7 +30,7 @@ const docTemplate = `{
                 "summary": "Check API health",
                 "responses": {
                     "200": {
-                        "description": "message:pong",
+                        "description": "message:alive",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -39,7 +39,38 @@ const docTemplate = `{
                 }
             }
         },
-        "/redirect": {
+        "/lopper": {
+            "get": {
+                "description": "Get a list of all redirect URLs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "redirect"
+                ],
+                "summary": "Retrieve all redirects",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Url"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing redirect URL by its model",
                 "consumes": [
@@ -175,7 +206,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/redirect/{id}": {
+        "/lopper/{id}": {
             "get": {
                 "description": "Retrieve a specific redirect URL by its ID",
                 "consumes": [
@@ -263,7 +294,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/redirect/{redirect}": {
+        "/r/{redirect}": {
             "get": {
                 "description": "Redirects the user to the original URL based on the lopper value",
                 "produces": [
@@ -298,48 +329,12 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/redirects": {
-            "get": {
-                "description": "Get a list of all redirect URLs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "redirect"
-                ],
-                "summary": "Retrieve all redirects",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Url"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
         "model.Url": {
             "type": "object",
             "properties": {
-                "clicked": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "string"
                 },
