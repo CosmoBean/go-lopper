@@ -50,9 +50,9 @@ func DeleteUrl(id ulid.ULID) error {
 	return tx.Error
 }
 
-func FindUrlByLopper(Lopper string) (model.Url, bool, error) {
+func GetUrlByLopper(lopper string) (model.Url, bool, error) {
 	var url model.Url
-	tx := db.Where("lopper = ?", url).First(&url)
+	tx := db.Where("lopper = ?", lopper).First(&url)
 	if tx.Error != nil {
 		return url, false, tx.Error
 	}

@@ -26,7 +26,7 @@ func SetupAndServe() {
 	router.Get("/lopper", getAllRedirects)
 	router.Get("/lopper/:id", getRedirectUrl)
 	router.Post("/lopper", createRedirectUrl)
-	router.Patch("/lopper", updateRedirectUrl)
+	router.Put("/lopper/:id", updateRedirectUrl)
 	router.Delete("/lopper/:id", deleteRedirectUrl)
 	router.Delete("/lopper", deleteRedirectUrlByLopper)
 

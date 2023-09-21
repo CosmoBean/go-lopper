@@ -1,8 +1,19 @@
 definitions:
   model.Url:
     properties:
+      clicked:
+        type: integer
       id:
         type: string
+      lopper:
+        type: string
+      random:
+        type: boolean
+      redirect:
+        type: string
+    type: object
+  model.UrlRequest:
+    properties:
       lopper:
         type: string
       random:
@@ -33,7 +44,7 @@ paths:
     delete:
       description: Delete a specific redirect URL by its lopper value
       parameters:
-      - description: Lopper Value
+      - description: lopper value
         in: query
         name: lopper
         required: true
@@ -43,9 +54,6 @@ paths:
       responses:
         "204":
           description: Successfully Deleted
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Bad Request
           schema:
@@ -85,12 +93,12 @@ paths:
       - application/json
       description: Create a new redirect URL with optional custom lopper
       parameters:
-      - description: URL Model
+      - description: request body
         in: body
         name: url
         required: true
         schema:
-          $ref: '#/definitions/model.Url'
+          $ref: '#/definitions/model.UrlRequest'
       produces:
       - application/json
       responses:
@@ -111,42 +119,11 @@ paths:
       summary: Create a new redirect URL
       tags:
       - redirect
-    put:
-      consumes:
-      - application/json
-      description: Update an existing redirect URL by its model
-      parameters:
-      - description: URL Model
-        in: body
-        name: url
-        required: true
-        schema:
-          $ref: '#/definitions/model.Url'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Url'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Update a redirect URL
-      tags:
-      - redirect
   /lopper/{id}:
     delete:
       description: Delete a specific redirect URL by its ID
       parameters:
-      - description: URL ID
+      - description: ID
         in: path
         name: id
         required: true
@@ -156,9 +133,6 @@ paths:
       responses:
         "204":
           description: Successfully Deleted
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Bad Request
           schema:
@@ -177,7 +151,7 @@ paths:
       - application/json
       description: Retrieve a specific redirect URL by its ID
       parameters:
-      - description: URL ID
+      - description: ID
         in: path
         name: id
         required: true
@@ -199,14 +173,50 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Get specific redirect URL
+      summary: Get redirect URL by ID
+      tags:
+      - redirect
+    put:
+      consumes:
+      - application/json
+      description: Update an existing redirect URL by its ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/model.UrlRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Url'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a redirect URL by ID
       tags:
       - redirect
   /r/{redirect}:
     get:
       description: Redirects the user to the original URL based on the lopper value
       parameters:
-      - description: Lopper Value
+      - description: lopper value
         in: path
         name: redirect
         required: true

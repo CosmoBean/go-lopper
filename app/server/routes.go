@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"go-lopper/db"
+	"go-lopper/driver"
 	"go-lopper/model"
 	"go-lopper/utils"
 
@@ -26,14 +27,14 @@ func getPing(ctx *fiber.Ctx) error {
 // @Summary Redirect to original URL
 // @Description Redirects the user to the original URL based on the lopper value
 // @Tags redirect
-// @Param redirect path string true "Lopper Value"
+// @Param redirect path string true "lopper value"
 // @Produce  json
 // @Success 307 {string} string "Redirected"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /r/{redirect} [get]
 func redirect(ctx *fiber.Ctx) error {
 	lopper := ctx.Params("redirect")
-	redirectUrl, _, err := db.FindUrlByLopper(lopper)
+	redirectUrl, _, err := db.GetUrlByLopper(lopper)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Error while finding by URL " + err.Error()})
@@ -69,10 +70,10 @@ func getAllRedirects(ctx *fiber.Ctx) error {
 }
 
 // GetRedirectUrl godoc
-// @Summary Get specific redirect URL
+// @Summary Get redirect URL by ID
 // @Description Retrieve a specific redirect URL by its ID
 // @Tags redirect
-// @Param id path string true "URL ID"
+// @Param id path string true "ID"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} model.Url
@@ -104,7 +105,7 @@ func getRedirectUrl(ctx *fiber.Ctx) error {
 // @Tags redirect
 // @Accept  json
 // @Produce  json
-// @Param url body model.Url true "URL Model"
+// @Param url body model.UrlRequest true "request body"
 // @Success 201 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
@@ -117,17 +118,11 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 	}
 
 	//lopper validations
-	lenLopper := len(url.Lopper)
-	if lenLopper > 0 {
-		url.Random = false
-		if len(url.Lopper) < 4 {
-			return ctx.Status(fiber.StatusBadRequest).JSON(
-				fiber.Map{"message": "Lopper should be at least 4 characters long"})
-		}
-		existingUrl, ok, err := db.FindUrlByLopper(url.Lopper)
-		if err == nil && ok {
-			return ctx.Status(fiber.StatusConflict).JSON(existingUrl)
-		}
+	if _, random, err := utils.ValidateLopper(url.Lopper); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{"message": "Invalid lopper " + err.Error()})
+	} else {
+		url.Random = random
 	}
 
 	url.ID = ulid.Make()
@@ -145,24 +140,31 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 }
 
 // UpdateRedirectUrl godoc
-// @Summary Update a redirect URL
-// @Description Update an existing redirect URL by its model
+// @Summary Update a redirect URL by ID
+// @Description Update an existing redirect URL by its ID
 // @Tags redirect
+// @Param id path string true "ID"
 // @Accept  json
 // @Produce  json
-// @Param url body model.Url true "URL Model"
+// @Param url body model.UrlRequest true "request body"
 // @Success 200 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper [put]
+// @Router /lopper/{id} [put]
 func updateRedirectUrl(ctx *fiber.Ctx) error {
-	var url model.Url
-	if err := ctx.BodyParser(&url); err != nil {
+	var urlRequest model.UrlRequest
+	id, err := ulid.Parse(ctx.Params("id"))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{"message": "Please pass the ID parameter properly  " + err.Error()})
+	}
+	if err := ctx.BodyParser(&urlRequest); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
 	}
 
-	if err := db.UpdateUrl(url); err != nil {
+	url, err := driver.UpdateLopper(ctx, id, urlRequest)
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while updating shortened url " + err.Error()})
 	}
@@ -175,9 +177,9 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 // @Summary Delete a redirect URL by ID
 // @Description Delete a specific redirect URL by its ID
 // @Tags redirect
-// @Param id path string true "URL ID"
+// @Param id path string true "ID"
 // @Produce  json
-// @Success 204 {object} map[string]interface{} "Successfully Deleted"
+// @Success 204 "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /lopper/{id} [delete]
@@ -185,7 +187,7 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 	id, err := ulid.Parse(ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
+			fiber.Map{"message": "Please pass the ID parameter properly " + err.Error()})
 	}
 
 	if err := db.DeleteUrl(id); err != nil {
@@ -193,7 +195,7 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Something went wrong while deleting shortened url " + err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Succesfully deleted"})
+	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Successfully deleted"})
 
 }
 
@@ -201,9 +203,9 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 // @Summary Delete a redirect URL by lopper
 // @Description Delete a specific redirect URL by its lopper value
 // @Tags redirect
-// @Param lopper query string true "Lopper Value"
+// @Param lopper query string true "lopper value"
 // @Produce  json
-// @Success 204 {object} map[string]interface{} "Successfully Deleted"
+// @Success 204 "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
 // @Router /lopper [delete]
@@ -218,7 +220,7 @@ func deleteRedirectUrlByLopper(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{"message": "Something went wrong while deleting shortened url " + err.Error()})
 	} else {
-		return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Succesfully deleted"})
+		return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{"message": "Successfully deleted"})
 	}
 
 }

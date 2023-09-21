@@ -71,52 +71,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "description": "Update an existing redirect URL by its model",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "redirect"
-                ],
-                "summary": "Update a redirect URL",
-                "parameters": [
-                    {
-                        "description": "URL Model",
-                        "name": "url",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Url"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Url"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Create a new redirect URL with optional custom lopper",
                 "consumes": [
@@ -131,12 +85,12 @@ const docTemplate = `{
                 "summary": "Create a new redirect URL",
                 "parameters": [
                     {
-                        "description": "URL Model",
+                        "description": "request body",
                         "name": "url",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Url"
+                            "$ref": "#/definitions/model.UrlRequest"
                         }
                     }
                 ],
@@ -175,7 +129,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Lopper Value",
+                        "description": "lopper value",
                         "name": "lopper",
                         "in": "query",
                         "required": true
@@ -183,11 +137,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "Successfully Deleted",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                        "description": "Successfully Deleted"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -218,14 +168,67 @@ const docTemplate = `{
                 "tags": [
                     "redirect"
                 ],
-                "summary": "Get specific redirect URL",
+                "summary": "Get redirect URL by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "URL ID",
+                        "description": "ID",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Url"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing redirect URL by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "redirect"
+                ],
+                "summary": "Update a redirect URL by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "url",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UrlRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -263,7 +266,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "URL ID",
+                        "description": "ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -271,11 +274,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "Successfully Deleted",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                        "description": "Successfully Deleted"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -307,7 +306,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Lopper Value",
+                        "description": "lopper value",
                         "name": "redirect",
                         "in": "path",
                         "required": true
@@ -335,9 +334,26 @@ const docTemplate = `{
         "model.Url": {
             "type": "object",
             "properties": {
+                "clicked": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 },
+                "lopper": {
+                    "type": "string"
+                },
+                "random": {
+                    "type": "boolean"
+                },
+                "redirect": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UrlRequest": {
+            "type": "object",
+            "properties": {
                 "lopper": {
                     "type": "string"
                 },
