@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/swagger"
 
 	_ "go-lopper/docs"
+	"go-lopper/utils"
 )
 
 func SetupAndServe() {
@@ -32,5 +33,5 @@ func SetupAndServe() {
 
 	router.Get("r/:redirect", redirect)
 
-	router.Listen(":9020")
+	router.Listen(utils.GetEnvWithDefault("FIBER_PORT", ":9020"))
 }

@@ -117,6 +117,11 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
 	}
 
+	if ok := utils.ValidateUrlString(url.Redirect); !ok {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{"message": "Invalid redirect url"})
+	}
+
 	//lopper validations
 	if _, random, err := utils.ValidateLopper(url.Lopper); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
@@ -158,9 +163,15 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{"message": "Please pass the ID parameter properly  " + err.Error()})
 	}
+
 	if err := ctx.BodyParser(&urlRequest); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{"message": "Something went wrong while parsing body " + err.Error()})
+	}
+
+	if ok := utils.ValidateUrlString(urlRequest.Redirect); !ok {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{"message": "Invalid redirect url"})
 	}
 
 	url, err := driver.UpdateLopper(ctx, id, urlRequest)

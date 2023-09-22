@@ -4,6 +4,7 @@ import "math/rand"
 
 var runes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
+// RandomUrl generates a random string of given length
 func RandomUrl(size int) string {
 	str := make([]rune, size)
 
