@@ -18,7 +18,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} map[string]interface{} "message:alive"
-// @Router /health [get]
+// @Router /api/v1/health [get]
 func getPing(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "alive"})
 }
@@ -57,7 +57,7 @@ func redirect(ctx *fiber.Ctx) error {
 // @Produce  json
 // @Success 200 {array} model.Url
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper [get]
+// @Router /api/v1/loppers	 [get]
 func getAllRedirects(ctx *fiber.Ctx) error {
 	urls, err := db.GetAllUrls()
 
@@ -79,7 +79,7 @@ func getAllRedirects(ctx *fiber.Ctx) error {
 // @Success 200 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper/{id} [get]
+// @Router /api/v1/loppers/{id} [get]
 func getRedirectUrl(ctx *fiber.Ctx) error {
 	id, err := ulid.Parse(ctx.Params("id"))
 
@@ -109,7 +109,7 @@ func getRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 201 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper [post]
+// @Router /api/v1/loppers [post]
 func createRedirectUrl(ctx *fiber.Ctx) error {
 	var url model.Url
 	if err := ctx.BodyParser(&url); err != nil {
@@ -155,7 +155,7 @@ func createRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 200 {object} model.Url
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper/{id} [put]
+// @Router /api/v1/loppers/{id} [put]
 func updateRedirectUrl(ctx *fiber.Ctx) error {
 	var urlRequest model.UrlRequest
 	id, err := ulid.Parse(ctx.Params("id"))
@@ -193,7 +193,7 @@ func updateRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 204 "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper/{id} [delete]
+// @Router /api/v1/loppers/{id} [delete]
 func deleteRedirectUrl(ctx *fiber.Ctx) error {
 	id, err := ulid.Parse(ctx.Params("id"))
 	if err != nil {
@@ -219,7 +219,7 @@ func deleteRedirectUrl(ctx *fiber.Ctx) error {
 // @Success 204 "Successfully Deleted"
 // @Failure 400 {object} map[string]interface{} "Bad Request"
 // @Failure 500 {object} map[string]interface{} "Internal Server Error"
-// @Router /lopper [delete]
+// @Router /api/v1/loppers [delete]
 func deleteRedirectUrlByLopper(ctx *fiber.Ctx) error {
 	lopper := ctx.Query("lopper")
 	if len(lopper) < 4 {

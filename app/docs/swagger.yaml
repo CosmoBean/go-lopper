@@ -24,7 +24,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /health:
+  /api/v1/health:
     get:
       consumes:
       - application/json
@@ -40,7 +40,7 @@ paths:
       summary: Check API health
       tags:
       - health
-  /lopper:
+  /api/v1/loppers:
     delete:
       description: Delete a specific redirect URL by its lopper value
       parameters:
@@ -119,7 +119,7 @@ paths:
       summary: Create a new redirect URL
       tags:
       - redirect
-  /lopper/{id}:
+  /api/v1/loppers/{id}:
     delete:
       description: Delete a specific redirect URL by its ID
       parameters:

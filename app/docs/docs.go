@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
+        "/api/v1/health": {
             "get": {
                 "description": "Returns a pong response if API is healthy",
                 "consumes": [
@@ -39,7 +39,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/lopper": {
+        "/api/v1/loppers": {
             "get": {
                 "description": "Get a list of all redirect URLs",
                 "consumes": [
@@ -156,7 +156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/lopper/{id}": {
+        "/api/v1/loppers/{id}": {
             "get": {
                 "description": "Retrieve a specific redirect URL by its ID",
                 "consumes": [

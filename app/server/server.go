@@ -22,14 +22,15 @@ func SetupAndServe() {
 	//docs
 	router.Get("/docs/*", swagger.HandlerDefault) // default
 
-	//routes
-	router.Get("/health", getPing)
-	router.Get("/lopper", getAllRedirects)
-	router.Get("/lopper/:id", getRedirectUrl)
-	router.Post("/lopper", createRedirectUrl)
-	router.Put("/lopper/:id", updateRedirectUrl)
-	router.Delete("/lopper/:id", deleteRedirectUrl)
-	router.Delete("/lopper", deleteRedirectUrlByLopper)
+	//API routes
+	api := router.Group("/api/v1")
+	api.Get("/health", getPing)
+	api.Get("/loppers", getAllRedirects)
+	api.Get("/loppers/:id", getRedirectUrl)
+	api.Post("/loppers", createRedirectUrl)
+	api.Put("/loppers/:id", updateRedirectUrl)
+	api.Delete("/loppers/:id", deleteRedirectUrl)
+	api.Delete("/loppers", deleteRedirectUrlByLopper)
 
 	router.Get("r/:redirect", redirect)
 
