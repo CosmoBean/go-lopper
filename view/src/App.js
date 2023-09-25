@@ -1,8 +1,8 @@
-
+import Section from './Section';
 function App() {
   return (
     <div>
-      Lopper
+      <Section />
     </div>
   );
 }
