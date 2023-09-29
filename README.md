@@ -1,6 +1,5 @@
 ﻿# go-lopper
 
-![Go-Lopper Logo](./assets/logo.png)
 
 `go-lopper` is a simple and efficient URL shortener written in Go.
 
