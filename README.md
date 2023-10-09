@@ -10,7 +10,7 @@
 - Detailed analytics for each shortened URL
 - Built with Go's powerful and performant standard library
 
-## Getting Started
+
 
 ### Prerequisites
 
